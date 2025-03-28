@@ -7,6 +7,7 @@ import { useState, useEffect, useRef } from 'react';
 interface MessageData {
   text: string;
   isBot: boolean;
+  agent: string;
 }
 
 function App() {
@@ -34,7 +35,7 @@ function App() {
         ) : (
           <div className="message__chatbox" ref={chatboxRef}>
             {messages.map((msg, index) => (
-              <Message key={index} message={msg.text} isBot={msg.isBot} /> // Pass isBot prop
+              <Message key={index} message={msg.text} isBot={msg.isBot} agent={msg.agent}/> // Pass isBot prop
             ))}
           </div>
         )}

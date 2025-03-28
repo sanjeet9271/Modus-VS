@@ -6,20 +6,25 @@ import send from "../assets/send.svg";
 import "./Footer.css";
 import { AgentService } from './AgentService';
 import react_1 from "../assets/react_1.svg";
+import { v4 as uuidv4 } from 'uuid';
 
 interface FooterProps {
-  onSendMessage: (message: { text: string; isBot: boolean }) => void;
+  onSendMessage: (message: { text: string; isBot: boolean ;agent: string }) => void;
 }
 
 const Footer: React.FC<FooterProps> = ({ onSendMessage }) => {
   const [inputValue, setInputValue] = useState('');
   const [isOverflowing, setIsOverflowing] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [selectedModel, setSelectedModel] = useState('React');
 
   const agentService = new AgentService();
-  agentService.accessToken = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2lkLnRyaW1ibGUuY29tIiwiZXhwIjoxNzQzMTU2OTY0LCJuYmYiOjE3NDMxNTMzNjQsImlhdCI6MTc0MzE1MzM2NCwianRpIjoiZWI3YTBiMTIyNzI2NGRlM2I2ZjgyMDNkOWUxYmRmNjYiLCJqd3RfdmVyIjoyLCJzdWIiOiJmZTE5MWIxNy0zNWZlLTQwZTItYmYyNy05NTkwYjE0ZjZmZjMiLCJpZGVudGl0eV90eXBlIjoidXNlciIsImFtciI6WyJmZWRlcmF0ZWQiLCJva3RhX3RyaW1ibGUiLCJtZmEiXSwiYXV0aF90aW1lIjoxNzQzMTQyNjI3LCJhenAiOiJkOWQyMWVkMC0xNGU3LTQ4ODctYmE0Yi1kMTJhYzJmMmY0NjYiLCJhY2NvdW50X2lkIjoidHJpbWJsZS1wbGFjZWhvbGRlci1vZi1lbXBsb3llZXMiLCJhdWQiOlsiZDlkMjFlZDAtMTRlNy00ODg3LWJhNGItZDEyYWMyZjJmNDY2Il0sInNjb3BlIjoiVERBQVMiLCJkYXRhX3JlZ2lvbiI6InVzIn0.hGCxTfh0BYOWJkti1IzuZ-RyYmqbYLOcYB2CFX9Vj3sqdeb8tWmcEeo4JFrjFwC3GiyhuUID2oL4mCvX6KBD9U-YwO-i2EFKrBdr_oBtapejYFZX8ZAJgZZ08BT-f-tMC1lcz5_S3ybL6jBF_m5fYlRC-uepDQI6mOM8tFYl_jgcAeZT3dlCwpl5WpRIEZp5prwRVdfbbvi5RaRlf9zqUCfE1ggSZKfpIWqvrlCMSZLCvSkp8sjp7AfLJL1rLj1xtkn4nRZKb5J72Kmt0RKZcydCzkMga_SgXDP7eMdQrlWeeLjUnsNt5LgiIpMynOnkx9pXB23ypG1HLAssBgF4zA';
-  const agentName = 'best-modus-react';
-  const sessionId = 'd309e573-693a-4209-a325-430f9542d789';
+  agentService.accessToken = 'eyJhbGciOiJSUzI1NiIsImtpZCI6IjEiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL2lkLnRyaW1ibGUuY29tIiwiZXhwIjoxNzQzMTYwODU0LCJuYmYiOjE3NDMxNTcyNTQsImlhdCI6MTc0MzE1NzI1NCwianRpIjoiMjU2NDI0ZjE1MTI3NGMwYWExNTViN2M3YTA1YWVhZTEiLCJqd3RfdmVyIjoyLCJzdWIiOiJmZTE5MWIxNy0zNWZlLTQwZTItYmYyNy05NTkwYjE0ZjZmZjMiLCJpZGVudGl0eV90eXBlIjoidXNlciIsImFtciI6WyJmZWRlcmF0ZWQiLCJva3RhX3RyaW1ibGUiLCJtZmEiXSwiYXV0aF90aW1lIjoxNzQzMTQyNjI3LCJhenAiOiJkOWQyMWVkMC0xNGU3LTQ4ODctYmE0Yi1kMTJhYzJmMmY0NjYiLCJhY2NvdW50X2lkIjoidHJpbWJsZS1wbGFjZWhvbGRlci1vZi1lbXBsb3llZXMiLCJhdWQiOlsiZDlkMjFlZDAtMTRlNy00ODg3LWJhNGItZDEyYWMyZjJmNDY2Il0sInNjb3BlIjoiVERBQVMiLCJkYXRhX3JlZ2lvbiI6InVzIn0.NpGkWLU99edbwbJBDj_L2pMlirLHkCKofmmwVbpMkPPNZrLpy2gMdRGmKlLFdq_LoLX6CC9MqfcsJxPsz-ABqiWIDXOAU0nuQBpyq51xaxeyZjbF1FoxNUoyhT8X856upJyZ1P1-Y_5znyxtfn3MUCOfwMkj9pwwzQS9czJQC-vFrfUNiv6kG4UdBTHFT4Ww6giNoEzHy0h1y7s-ED0WeF_M5syZhjEcqhJ3zogFVAUAPWWvR77Pa3lhVs-6_J8svxsghT5gjlKzJhG9lVrl-MK_8D68LvjD-I6icSmhb8w7Q_tXVe5n7MDpUccl0lD7qQ33C4xFyY8fU0rM6e1sdw';
+  const agentName = selectedModel =='React'?'best-modus-react':'angularp2c';
+  const react_sessionId = uuidv4();
+  const angular_sessionId = uuidv4();
+  const sessionId = selectedModel =='React'? react_sessionId : angular_sessionId;
 
   const reactUri = document.getElementById('root')?.getAttribute('data-image-uri') || react_1 || undefined;
 
@@ -63,7 +68,7 @@ const Footer: React.FC<FooterProps> = ({ onSendMessage }) => {
 
   const handleSendClick = async () => {
     if (inputValue.trim()) {
-      onSendMessage({ text: inputValue, isBot: false });
+      onSendMessage({ text: inputValue, isBot: false ,agent: selectedModel });
       setInputValue('');
 
       if (textareaRef.current) {
@@ -131,7 +136,7 @@ const Footer: React.FC<FooterProps> = ({ onSendMessage }) => {
 // export default MyComponent;\`\`\``
 
         if (botResponse) {
-          onSendMessage({ text: botResponse, isBot: true });
+          onSendMessage({ text: botResponse, isBot: true ,agent: selectedModel });
         } else {
           console.error('Bot response is undefined');
         }
@@ -150,6 +155,16 @@ const Footer: React.FC<FooterProps> = ({ onSendMessage }) => {
   const handleAttachmentClick = () => {
     console.log("Attachment button clicked");
   };
+
+  const toggleDropdown = () => {
+    setIsDropdownOpen(!isDropdownOpen);
+  };
+
+  const selectModel = (model: string) => {
+    setSelectedModel(model);
+    setIsDropdownOpen(false);
+  };
+
 
   return (
     <div className="footer__wrapper">
@@ -178,11 +193,17 @@ const Footer: React.FC<FooterProps> = ({ onSendMessage }) => {
               </button>
             </div>
             <div className="dropdown">
-              <div className="model_selection">
+            <div className="model_selection" onClick={toggleDropdown}>
                 <button>
-                  <span>React</span>
+                  <span>{selectedModel}</span>
                   <img src={arrow} alt="Arrow" />
                 </button>
+                {isDropdownOpen && (
+                  <div className="dropdown-menu">
+                    <div onClick={() => selectModel('React')}>React</div>
+                    <div onClick={() => selectModel('Angular')}>Angular</div>
+                  </div>
+                )}
               </div>
               <button onClick={handleSendClick}>
                 <img src={send} alt="Send" />
